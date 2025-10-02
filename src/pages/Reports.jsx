@@ -2,50 +2,67 @@ import { useOrders } from '../context/OrderContext';
 import { useState } from 'react';
 
 const Reports = () => {
-  const { orders } = useOrders();
+  const { orders, services } = useOrders();
   const [reportType, setReportType] = useState('daily');
   
   const generateReport = () => {
     const now = new Date();
     
+    let filteredOrders;
+    let title;
+    let date;
+    
     if (reportType === 'daily') {
       const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-      const todayOrders = orders.filter(order => {
+      filteredOrders = orders.filter(order => {
         const orderDate = new Date(order.createdAt);
         return orderDate >= today;
       });
       
-      const totalIncome = todayOrders.reduce((sum, order) => sum + order.price, 0);
-      
-      return {
-        title: 'Laporan Harian',
-        date: today.toLocaleDateString('id-ID'),
-        orderCount: todayOrders.length,
-        totalIncome
-      };
+      title = 'Laporan Harian';
+      date = today.toLocaleDateString('id-ID');
     } else {
       const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-      const monthOrders = orders.filter(order => {
+      filteredOrders = orders.filter(order => {
         const orderDate = new Date(order.createdAt);
         return orderDate >= startOfMonth;
       });
       
-      const totalIncome = monthOrders.reduce((sum, order) => sum + order.price, 0);
+      title = 'Laporan Bulanan';
+      date = now.toLocaleDateString('id-ID', { month: 'long', year: 'numeric' });
+    }
+    
+    const totalIncome = filteredOrders.reduce((sum, order) => sum + order.price, 0);
+    
+    // Statistik per layanan
+    const serviceStats = Object.entries(services).map(([key, service]) => {
+      const serviceOrders = filteredOrders.filter(order => order.serviceType === key);
+      const totalWeight = serviceOrders.reduce((sum, order) => sum + order.weight, 0);
+      const serviceIncome = serviceOrders.reduce((sum, order) => sum + order.price, 0);
       
       return {
-        title: 'Laporan Bulanan',
-        date: now.toLocaleDateString('id-ID', { month: 'long', year: 'numeric' }),
-        orderCount: monthOrders.length,
-        totalIncome
+        name: service.name,
+        count: serviceOrders.length,
+        totalWeight,
+        totalIncome: serviceIncome,
+        percentage: totalIncome > 0 ? (serviceIncome / totalIncome * 100).toFixed(1) : 0
       };
-    }
+    });
+    
+    return {
+      title,
+      date,
+      orderCount: filteredOrders.length,
+      totalIncome,
+      serviceStats
+    };
   };
   
   const report = generateReport();
   
   const exportToCSV = () => {
     let csvContent = "data:text/csv;charset=utf-8,";
-    csvContent += "ID Order,Nama Pelanggan,Layanan,Status,Harga,Tanggal\n";
+    csvContent += "ID Order,Nama Pelanggan,Layanan,Berat (kg),Status,Harga,Tanggal\n";
     
     const filteredOrders = reportType === 'daily' 
       ? orders.filter(order => {
@@ -61,7 +78,7 @@ const Reports = () => {
         });
     
     filteredOrders.forEach(order => {
-      const row = `${order.id},${order.customerName},${order.serviceType},${order.status},${order.price},${new Date(order.createdAt).toLocaleDateString('id-ID')}`;
+      const row = `${order.id},${order.customerName},${order.serviceType},${order.weight},${order.status},${order.price},${new Date(order.createdAt).toLocaleDateString('id-ID')}`;
       csvContent += row + "\n";
     });
     
@@ -109,6 +126,19 @@ const Reports = () => {
             <h3>Total Pemasukan</h3>
             <p className="stat-number">Rp {report.totalIncome.toLocaleString('id-ID')}</p>
           </div>
+        </div>
+        
+        <h3>Statistik per Layanan</h3>
+        <div className="service-report-stats">
+          {report.serviceStats.map((stat, index) => (
+            <div key={index} className="service-stat-card">
+              <h3>{stat.name}</h3>
+              <p>Jumlah Order: <span>{stat.count}</span></p>
+              <p>Total Berat: <span>{stat.totalWeight.toFixed(1)} kg</span></p>
+              <p>Pendapatan: <span>Rp {stat.totalIncome.toLocaleString('id-ID')}</span></p>
+              <p>Persentase: <span>{stat.percentage}%</span></p>
+            </div>
+          ))}
         </div>
       </div>
     </div>

@@ -3,7 +3,7 @@ import StatusBadge from './StatusBadge';
 import { Link } from 'react-router-dom';
 
 const OrderTable = ({ filter = 'all' }) => {
-  const { orders } = useOrders();
+  const { orders, services } = useOrders();
   
   const filteredOrders = filter === 'all' 
     ? orders 
@@ -19,6 +19,10 @@ const OrderTable = ({ filter = 'all' }) => {
     return statusMap[status] || status;
   };
   
+  const getServiceName = (serviceType) => {
+    return services[serviceType]?.name || serviceType;
+  };
+  
   return (
     <div className="order-table-container">
       <div className="table-responsive">
@@ -28,6 +32,7 @@ const OrderTable = ({ filter = 'all' }) => {
               <th>ID Order</th>
               <th>Nama</th>
               <th>Layanan</th>
+              <th>Berat</th>
               <th>Status</th>
               <th>Harga</th>
               <th>Aksi</th>
@@ -38,7 +43,8 @@ const OrderTable = ({ filter = 'all' }) => {
               <tr key={order.id}>
                 <td>#{order.id}</td>
                 <td>{order.customerName}</td>
-                <td>{order.serviceType}</td>
+                <td>{getServiceName(order.serviceType)}</td>
+                <td>{order.weight} kg</td>
                 <td>
                   <StatusBadge status={order.status} />
                 </td>
