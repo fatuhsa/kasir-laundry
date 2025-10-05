@@ -10,7 +10,7 @@ const OrderDetail = () => {
   const order = orders.find(o => o.id === parseInt(id));
   
   if (!order) {
-    return <div>Order tidak ditemukan</div>;
+    return <div className="page-container"><div>Order tidak ditemukan</div></div>;
   }
   
   const statusFlow = {
@@ -52,53 +52,55 @@ const OrderDetail = () => {
   const serviceInfo = getServiceInfo();
   
   return (
-    <div className="order-detail">
+    <div className="page-container">
       <button onClick={() => navigate(-1)} className="back-btn">
         ← Kembali
       </button>
       
-      <div className="detail-header">
-        <h2>Detail Order #{order.id}</h2>
-        <div className={`status-badge ${order.status}`}>
-          {getStatusText(order.status)}
-        </div>
-      </div>
-      
-      <div className="detail-content">
-        <div className="detail-section">
-          <h3>Informasi Pelanggan</h3>
-          <p><strong>Nama:</strong> {order.customerName}</p>
-          <p><strong>Nomor HP:</strong> {order.phoneNumber}</p>
+      <div className="order-detail">
+        <div className="detail-header">
+          <h2>Detail Order #{order.id}</h2>
+          <div className={`status-badge ${order.status}`}>
+            {getStatusText(order.status)}
+          </div>
         </div>
         
-        <div className="detail-section">
-          <h3>Informasi Layanan</h3>
-          <p><strong>Jenis Layanan:</strong> {serviceInfo.name} ({serviceInfo.description})</p>
-          <p><strong>Harga per kg:</strong> Rp {serviceInfo.pricePerKg.toLocaleString('id-ID')}</p>
-          <p><strong>Berat:</strong> {order.weight} kg</p>
-          <p><strong>Tanggal & Jam Masuk:</strong> {new Date(`${order.entryDate}T${order.entryTime}`).toLocaleString('id-ID')}</p>
-          <p><strong>Perkiraan Selesai:</strong> {new Date(order.completionDate).toLocaleString('id-ID')}</p>
+        <div className="detail-content">
+          <div className="detail-section">
+            <h3>Informasi Pelanggan</h3>
+            <p><strong>Nama:</strong> {order.customerName}</p>
+            <p><strong>Nomor HP:</strong> {order.phoneNumber}</p>
+          </div>
+          
+          <div className="detail-section">
+            <h3>Informasi Layanan</h3>
+            <p><strong>Jenis Layanan:</strong> {serviceInfo.name} ({serviceInfo.description})</p>
+            <p><strong>Harga per kg:</strong> Rp {serviceInfo.pricePerKg.toLocaleString('id-ID')}</p>
+            <p><strong>Berat:</strong> {order.weight} kg</p>
+            <p><strong>Tanggal & Jam Masuk:</strong> {new Date(`${order.entryDate}T${order.entryTime}`).toLocaleString('id-ID')}</p>
+            <p><strong>Perkiraan Selesai:</strong> {new Date(order.completionDate).toLocaleString('id-ID')}</p>
+          </div>
+          
+          <div className="detail-section">
+            <h3>Informasi Pembayaran</h3>
+            <p><strong>Total Harga:</strong> Rp {order.price.toLocaleString('id-ID')}</p>
+          </div>
         </div>
         
-        <div className="detail-section">
-          <h3>Informasi Pembayaran</h3>
-          <p><strong>Total Harga:</strong> Rp {order.price.toLocaleString('id-ID')}</p>
-        </div>
-      </div>
-      
-      <div className="detail-actions">
-        {order.status !== 'picked' && (
-          <button 
-            onClick={handleStatusUpdate}
-            className="update-status-btn"
-          >
-            Update ke {getStatusText(statusFlow[order.status])}
+        <div className="detail-actions">
+          {order.status !== 'picked' && (
+            <button 
+              onClick={handleStatusUpdate}
+              className="update-status-btn"
+            >
+              Update ke {getStatusText(statusFlow[order.status])}
+            </button>
+          )}
+          
+          <button onClick={handlePrint} className="print-btn">
+            Cetak Nota
           </button>
-        )}
-        
-        <button onClick={handlePrint} className="print-btn">
-          Cetak Nota
-        </button>
+        </div>
       </div>
     </div>
   );

@@ -92,7 +92,7 @@ const Reports = () => {
   };
   
   return (
-    <div className="reports">
+    <div className="page-container">
       <h1>Laporan</h1>
       
       <div className="report-controls">

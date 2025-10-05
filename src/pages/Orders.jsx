@@ -5,7 +5,7 @@ const Orders = () => {
   const [filter, setFilter] = useState('all');
   
   return (
-    <div className="orders-page">
+    <div className="page-container">
       <h1>Daftar Order</h1>
       
       <div className="filter-container">
